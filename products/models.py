@@ -18,14 +18,18 @@ class SubCategory(models.Model):
     category = models.ForeignKey(Category, on_delete=models.CASCADE,related_name='category')
     title = models.CharField(max_length=100)
     slug = models.SlugField(max_length=100)
-
-    def __str__(self):
-        return self.title
     
     class Meta:
         ordering = ['id',]
         verbose_name = ('SubCategory')
         verbose_name_plural = ('SubCategories')
+
+    
+    def __str__(self):
+        return f"{self.category} - {self.title}"
+    
+    def get_product_count(self):
+        return self.subcategory.count()
         
 
 class Product(models.Model):
@@ -43,3 +47,8 @@ class Product(models.Model):
 
     def __str__(self):
         return self.title
+    
+    def delete(self, *args, **kwargs):
+        storage, path = self.image.storage, self.image.path
+        super(Product, self).delete(*args, **kwargs)
+        storage.delete(path)
